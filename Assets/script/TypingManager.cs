@@ -23,7 +23,7 @@ public class TypingManager : MonoBehaviour
     private (List<string> parsedSentence, List<List<string>> judgeAutomaton) result;
     private static readonly string current_directory = Environment.CurrentDirectory;
     private readonly string csv_path = current_directory + "/Assets/script/workbook_sample_1.csv";
-    private readonly string json_path = "Typing/Assets/script/romanTypingParseDictionary.json";
+    private readonly string json_path = current_directory + @"/Assets/script/romanTypingParseDictionary.json";
 
     private (List<string>, List<string>) Read_Csv(string path)//問題集の読み込み
     {
@@ -38,7 +38,7 @@ public class TypingManager : MonoBehaviour
 
     private static readonly Dictionary<string, string[]> mappingDict = new();
 
-
+        private static readonly Dictionary<string, string[]> mapping = new Dictionary<string, string[]>();
         private void Read_Json_File(string path)//パース情報の読み込み
         {
             if (mapping.Count != 0) { return; }
@@ -222,15 +222,15 @@ public class TypingManager : MonoBehaviour
     private int Input_Judge(string inkey)//入力の合否
     {
         List<string> answer = result.Item2[parse_index].FindAll(answer => answer[word_num].ToString() == inkey);
-        //if (result.Item2[parse_index][patten_num][word_num].ToString() == inkey)
-        //{
-        //    return 1;
-        //}
-        //else
-        //{
-        //    return 2;
-        //}
-        if (answer.Count != 0)
+            //if (result.Item2[parse_index][patten_num][word_num].ToString() == inkey)
+            //{
+            //    return 1;
+            //}
+            //else
+            //{
+            //    return 2;
+            //}
+            if (answer.Count != 0)
         {//柔軟入力に対応していた場合
             int num = 0;
             foreach (string typePattern in result.Item2[parse_index])
