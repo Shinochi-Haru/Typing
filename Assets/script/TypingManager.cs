@@ -12,20 +12,32 @@ namespace RomanTypingParser
 
 public class TypingManager : MonoBehaviour
 {
-    private TextMeshPro sentence;
-    private TextMeshPro hiragana;
-    private TextMeshPro alp;
-    private TextMeshPro typing_count;
-    private TextMeshPro miss_typ_count;
+        [SerializeField] private TextMeshPro sentence;
+        [SerializeField] private TextMeshPro hiragana;
+        [SerializeField] private TextMeshPro alp;
+        [SerializeField] private TextMeshPro typing_count;
+        [SerializeField] private TextMeshPro miss_typ_count;
 
-    private List<string> Q_sentence = new List<string>();
-    private List<string> Q_hiragana = new List<string>();
-    private (List<string> parsedSentence, List<List<string>> judgeAutomaton) result;
-    private static readonly string current_directory = Environment.CurrentDirectory;
-    private readonly string csv_path = current_directory + "/Assets/script/workbook_sample_1.csv";
-    private readonly string json_path = current_directory + @"/Assets/script/romanTypingParseDictionary.json";
+        private List<string> Q_sentence = new List<string>();
+        private List<string> Q_hiragana = new List<string>();
+        private (List<string> parsedSentence, List<List<string>> judgeAutomaton) result;
+        private static readonly string current_directory = Environment.CurrentDirectory;
+        private readonly string csv_path = current_directory + "/Assets/script/workbook_sample_1.csv";
+        private readonly string json_path = current_directory + @"/Assets/script/romanTypingParseDictionary.json";
+        private int parse_index = 0;
+        private int patten_num = 0;
+        private int word_num = 0;
+        private int miss;
+        private int typ_count;
+        private List<int> ramdom_list = new List<int>();
+        List<int> question_index = new List<int>();
+        private string alpha_script;
+        private int alpha_index = 0;
+        private List<int> patten_hound;
+        private bool ramdom_switch = true;
 
-    private (List<string>, List<string>) Read_Csv(string path)//問題集の読み込み
+
+        private (List<string>, List<string>) Read_Csv(string path)//問題集の読み込み
     {
         Dictionary<string, string> question_dic = new Dictionary<string, string>();
         string csv = File.ReadAllText(path);
@@ -36,9 +48,9 @@ public class TypingManager : MonoBehaviour
         return (new List<string>(question_dic.Keys), new List<string>(question_dic.Values));
     }
 
-    private static readonly Dictionary<string, string[]> mappingDict = new();
+    //private static readonly Dictionary<string, string[]> mappingDict = new();
 
-        private static readonly Dictionary<string, string[]> mapping = new Dictionary<string, string[]>();
+        private static readonly Dictionary<string, string[]> mapping = new();
         private void Read_Json_File(string path)//パース情報の読み込み
         {
             if (mapping.Count != 0) { return; }
@@ -71,19 +83,19 @@ public class TypingManager : MonoBehaviour
                 tri = (idx + 2 < sentenceHiragana.Length) ? sentenceHiragana.Substring(idx, 3) : "";
                 if (mapping.ContainsKey(tri))
                 {
-                    validTypeList = new List<string>(mappingDict[tri]);
+                    validTypeList = new List<string>(mapping[tri]);
                     idx += 3;
                     parsedStr.Add(tri);
                 }
                 else if (mapping.ContainsKey(bi))
                 {
-                    validTypeList = new List<string>(mappingDict[bi]);
+                    validTypeList = new List<string>(mapping[bi]);
                     idx += 2;
                     parsedStr.Add(bi);
                 }
                 else
                 {
-                    validTypeList = new List<string>(mappingDict[uni]);
+                    validTypeList = new List<string>(mapping[uni]);
                     // 文末「ん」の処理
                     if (uni.Equals("ん") && sentenceHiragana.Length - 1 == idx)
                     {
@@ -104,24 +116,24 @@ public class TypingManager : MonoBehaviour
             // パターンに対するローマ字入力の打ち方
             public string[] TypePattern { get; set; } = new string[1] { "" };
         }
-        private bool ramdom_switch = true;
+        
 
         private void Start()
-    {
+        {
         sentence = GameObject.Find("sentense-text").GetComponent<TextMeshPro>();
         hiragana = GameObject.Find("hiragana-text").GetComponent<TextMeshPro>();
         alp = GameObject.Find("alp-text").GetComponent<TextMeshPro>();
         typing_count = GameObject.Find("type-count").GetComponent<TextMeshPro>();
         miss_typ_count = GameObject.Find("miss-count").GetComponent<TextMeshPro>();
 
-        //(Q_sentence, Q_hiragana) = Read_Csv(csv_path);
-        //Read_Json_File(json_path);
-        //sentence.text = Q_sentence[0];
-        //hiragana.text = Q_hiragana[0];
-        //result = ConstructTypeSentence(Q_hiragana[0]);
+            (Q_sentence, Q_hiragana) = Read_Csv(csv_path);
+            Read_Json_File(json_path);
+            sentence.text = Q_sentence[0];
+            hiragana.text = Q_hiragana[0];
+            result = ConstructTypeSentence(Q_hiragana[0]);
 
 
-        (Q_sentence, Q_hiragana) = Read_Csv(csv_path);
+            //(Q_sentence, Q_hiragana) = Read_Csv(csv_path);
         Read_Json_File(json_path);
         if (ramdom_switch == true)
         {
@@ -190,47 +202,37 @@ public class TypingManager : MonoBehaviour
 
             if (inkey != null ^ inkey == "")//Shiftキーなど文字情報が含まれないキーを排他
             {
-                // if(inkey != null ^ inkey == "") の中
+                    // if(inkey != null ^ inkey == "") の中
 
-                switch (Input_Judge(inkey))
-                {
-                    case 1:
-                        alp.text = "<color=red>" + alpha_script.Insert(alpha_index + 1, "</color>");
-                        alpha_index++; //アルファベット文字移動
-                        word_num++;    //パターン内の次の文字に移動
-                        if (word_num == result.Item2[parse_index][patten_num].Length) //次の文字がなかったら次のパースに移動
-                        {
-                            parse_index++;
-                            patten_num = 0;
-                            word_num = 0;
-                        }
-                        Question_Change();
-                        break;
-                    case 2://タイプミス
-                        break;
+                    switch (Input_Judge(inkey))
+                    {
+                        case 1:
+                            Debug.Log("正解");
+                            alp.text = "<color=red>" + alpha_script.Insert(alpha_index + 1, "</color>");
+                            alpha_index++; //アルファベット文字移動
+                            word_num++;    //パターン内の次の文字に移動
+                            if (word_num == result.Item2[parse_index][patten_num].Length) //次の文字がなかったら次のパースに移動
+                            {
+                                parse_index++;
+                                patten_num = 0;
+                                word_num = 0;
+                            }
+                            Random_Question();
+                           // Question_Change();
+                            break;
+                        case 2://タイプミス
+                            miss++;
+                            miss_typ_count.text = miss.ToString();
+                            break;
+                    }
                 }
-            }
         }
+            Input.ResetInputAxes();
     }
-    private int parse_index = 0;
-    private int patten_num = 0;
-    private int word_num = 0;
-    private int miss;
-    private int typ_count;
-    private List<int> ramdom_list = new List<int>();
-
     private int Input_Judge(string inkey)//入力の合否
     {
         List<string> answer = result.Item2[parse_index].FindAll(answer => answer[word_num].ToString() == inkey);
-            //if (result.Item2[parse_index][patten_num][word_num].ToString() == inkey)
-            //{
-            //    return 1;
-            //}
-            //else
-            //{
-            //    return 2;
-            //}
-            if (answer.Count != 0)
+        if (answer.Count != 0)
         {//柔軟入力に対応していた場合
             int num = 0;
             foreach (string typePattern in result.Item2[parse_index])
@@ -251,50 +253,31 @@ public class TypingManager : MonoBehaviour
         {
             return 2;
         }
-        switch (Input_Judge(inkey))
-        {
-            case 1:
-
-
-                break;
-            case 2:
-                miss++;
-                miss_typ_count.text = miss.ToString();
-                break;
-        }
-        Input.ResetInputAxes();
-        typ_count++;
-        typing_count.text = typ_count.ToString();
     }
 
-    private string alpha_script;
-    private int alpha_index = 0;
-    private List<int> patten_hound;
-
-    private void Question_Change()  //問題変更
-    {
-        if (alpha_script.Length == alpha_index)
-        {
-            parse_index = 0;
-            alpha_index = 0;
-            List<int> question_index = new List<int>();
-            question_index[0]++;
-            if (ramdom_switch == true)
-            {
-                sentence.text = Q_sentence[ramdom_list[question_index[0]]];
-                hiragana.text = Q_hiragana[ramdom_list[question_index[0]]];
-                result = ConstructTypeSentence(Q_hiragana[ramdom_list[question_index[0]]]);
-            }
-            else
-            {
-                sentence.text = Q_sentence[question_index[0]];
-                hiragana.text = Q_hiragana[question_index[0]];
-                result = ConstructTypeSentence(Q_hiragana[question_index[0]]);
-            }
-            Reset_Patten();
-            Parse_Mixed(result);
-        }
-    }
+    //private void Question_Change()  //問題変更
+    //{
+    //    if (alpha_script.Length == alpha_index)
+    //    {
+    //        parse_index = 0;
+    //        alpha_index = 0;
+    //        question_index[0]++;
+    //        if (ramdom_switch == true)
+    //        {
+    //            sentence.text = Q_sentence[ramdom_list[question_index[0]]];
+    //            hiragana.text = Q_hiragana[ramdom_list[question_index[0]]];
+    //            result = ConstructTypeSentence(Q_hiragana[ramdom_list[question_index[0]]]);
+    //        }
+    //        else
+    //        {
+    //            sentence.text = Q_sentence[question_index[0]];
+    //            hiragana.text = Q_hiragana[question_index[0]];
+    //            result = ConstructTypeSentence(Q_hiragana[question_index[0]]);
+    //        }
+    //        Reset_Patten();
+    //        Parse_Mixed(result);
+    //    }
+    //}
 
     private void Reset_Patten()//パースパターンの初期化
     {
