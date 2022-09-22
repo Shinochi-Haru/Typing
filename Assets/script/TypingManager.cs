@@ -207,7 +207,6 @@ public class TypingManager : MonoBehaviour
                     switch (Input_Judge(inkey))
                     {
                         case 1:
-                            Debug.Log("正解");
                             alp.text = "<color=red>" + alpha_script.Insert(alpha_index + 1, "</color>");
                             alpha_index++; //アルファベット文字移動
                             word_num++;    //パターン内の次の文字に移動
@@ -217,8 +216,7 @@ public class TypingManager : MonoBehaviour
                                 patten_num = 0;
                                 word_num = 0;
                             }
-                            Random_Question();
-                           // Question_Change();
+                            Question_Change();
                             break;
                         case 2://タイプミス
                             miss++;
@@ -255,32 +253,33 @@ public class TypingManager : MonoBehaviour
         }
     }
 
-    //private void Question_Change()  //問題変更
-    //{
-    //    if (alpha_script.Length == alpha_index)
-    //    {
-    //        parse_index = 0;
-    //        alpha_index = 0;
-    //        question_index[0]++;
-    //        if (ramdom_switch == true)
-    //        {
-    //            sentence.text = Q_sentence[ramdom_list[question_index[0]]];
-    //            hiragana.text = Q_hiragana[ramdom_list[question_index[0]]];
-    //            result = ConstructTypeSentence(Q_hiragana[ramdom_list[question_index[0]]]);
-    //        }
-    //        else
-    //        {
-    //            sentence.text = Q_sentence[question_index[0]];
-    //            hiragana.text = Q_hiragana[question_index[0]];
-    //            result = ConstructTypeSentence(Q_hiragana[question_index[0]]);
-    //        }
-    //        Reset_Patten();
-    //        Parse_Mixed(result);
-    //    }
-    //}
+        private void Question_Change()  //問題変更
+        {
+            if (alpha_script.Length == alpha_index)
+            {
+                parse_index = 0;
+                alpha_index = 0;
+                //question_index[0]++;
+                ramdom_list[0]++;
+                if (ramdom_switch == true)
+                {
+                    sentence.text = Q_sentence[ramdom_list[0]];
+                    hiragana.text = Q_hiragana[ramdom_list[0]];
+                    result = ConstructTypeSentence(Q_hiragana[ramdom_list[0]]);
+                }
+                else
+                {
+                    sentence.text = Q_sentence[0];
+                    hiragana.text = Q_hiragana[0];
+                    result = ConstructTypeSentence(Q_hiragana[0]);
+                }
+                Reset_Patten();
+                Parse_Mixed(result);
+            }
+        }
 
-    private void Reset_Patten()//パースパターンの初期化
-    {
+        private void Reset_Patten()//パースパターンの初期化
+        {
         patten_hound = new List<int>();
         for (int i = 0; i < result.Item1.Count; i++)
         {
