@@ -229,7 +229,7 @@ public class TypingManager : MonoBehaviour
     }
     private int Input_Judge(string inkey)//“ü—Í‚Ì‡”Û
     {
-        List<string> answer = result.Item2[parse_index].FindAll(answer => answer[word_num].ToString() == inkey);
+        List<string> answer = result.judgeAutomaton[parse_index].FindAll(answer => answer[word_num].ToString() == inkey);
         if (answer.Count != 0)
         {//_“î“ü—Í‚É‘Î‰‚µ‚Ä‚¢‚½ê‡
             int num = 0;

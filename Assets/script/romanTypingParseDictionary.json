@@ -6386,6 +6386,10 @@
   },
   {
     "Pattern": "んZ",
-    "TypePattern": ["nnZ", "xnZ"]
+    "TypePattern": [ "nnZ", "xnZ" ]
+  },
+  {
+    "Pattern": "!",
+    "TypePattern": [ "!" ]
   }
 ]
