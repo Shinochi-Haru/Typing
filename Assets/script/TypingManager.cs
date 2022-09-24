@@ -22,7 +22,7 @@ public class TypingManager : MonoBehaviour
         private List<string> Q_hiragana = new List<string>();
         private (List<string> parsedSentence, List<List<string>> judgeAutomaton) result;
         private static readonly string current_directory = Environment.CurrentDirectory;
-        private readonly string csv_path = current_directory + "/Assets/script/workbook_sample_1.csv";
+        private readonly string csv_path = current_directory + "/Assets/script/workbook_sample_2.csv";
         private readonly string json_path = current_directory + @"/Assets/script/romanTypingParseDictionary.json";
         private int parse_index = 0;
         private int patten_num = 0;
@@ -30,16 +30,16 @@ public class TypingManager : MonoBehaviour
         private int miss;
         private int typ_count;
         private List<int> ramdom_list = new List<int>();
-        List<int> question_index = new List<int>();
+        private int Q_index = 0;
         private string alpha_script;
         private int alpha_index = 0;
         private List<int> patten_hound;
         private bool ramdom_switch = true;
 
 
-        private (List<string>, List<string>) Read_Csv(string path)//問題集の読み込み
+    private (List<string>, List<string>) Read_Csv(string path)//問題集の読み込み
     {
-        Dictionary<string, string> question_dic = new Dictionary<string, string>();
+        Dictionary<string, string> question_dic = new();
         string csv = File.ReadAllText(path);
         foreach (ICsvLine line in CsvReader.ReadFromText(csv))
         {
@@ -132,69 +132,64 @@ public class TypingManager : MonoBehaviour
             hiragana.text = Q_hiragana[0];
             result = ConstructTypeSentence(Q_hiragana[0]);
 
-
-            //(Q_sentence, Q_hiragana) = Read_Csv(csv_path);
-        Read_Json_File(json_path);
-        if (ramdom_switch == true)
+            if (ramdom_switch == true)
         {
             Random_Question();
-            sentence.text = Q_sentence[ramdom_list[0]];
-            hiragana.text = Q_hiragana[ramdom_list[0]];
-            result = ConstructTypeSentence(Q_hiragana[ramdom_list[0]]);
+            sentence.text = Q_sentence[ramdom_list[Q_index]];
+            hiragana.text = Q_hiragana[ramdom_list[Q_index]];
+            result = ConstructTypeSentence(Q_hiragana[ramdom_list[Q_index]]);
         }
         else
         {
-            sentence.text = Q_sentence[0];
-            hiragana.text = Q_hiragana[0];
-            result = ConstructTypeSentence(Q_hiragana[0]);
+            sentence.text = Q_sentence[ramdom_list[Q_index]];
+            hiragana.text = Q_hiragana[ramdom_list[Q_index]];
+            result = ConstructTypeSentence(Q_hiragana[ramdom_list[Q_index]]);
         }
         Reset_Patten();
         Parse_Look(result);
         Parse_Mixed(result);
     }
 
-    private void Parse_Look((List<string>, List<List<string>>) result)//パース確認用
-    {
-        for (int i = 0; i < result.Item1.Count; ++i)
+        private void Parse_Look((List<string>, List<List<string>>) result)//パース確認用
         {
-            var partStr = result.Item1[i];
-            Debug.Log($"Part {i} : {partStr}");
-            var strBuilder = new StringBuilder();
-            for (int j = 0; j < result.Item2[i].Count; ++j)
+            for (int i = 0; i < result.Item1.Count; ++i)
             {
-                if (j == result.Item2[i].Count - 1)//まだ他に入力方法があるか、ないか
+                var partStr = result.Item1[i];
+                Debug.Log($"Part {i} : {partStr}");
+                var strBuilder = new StringBuilder();
+                for (int j = 0; j < result.Item2[i].Count; ++j)
                 {
-                    strBuilder.Append(result.Item2[i][j]);
+                    if (j == result.Item2[i].Count - 1)//まだ他に入力方法があるか、ないか
+                    {
+                        strBuilder.Append(result.Item2[i][j]);
+                    }
+                    else
+                    {
+                        strBuilder.Append($"{result.Item2[i][j]}, ");//”,”とともに追加
+                    }
+                }
+                Debug.Log(strBuilder.ToString());
+            }
+        }
+
+        private void Parse_Mixed((List<string>, List<List<string>>) result)//パースを元にローマ字文の作成
+        {
+            string parse_total = "";
+            for (int i = 0; i < result.Item1.Count; i++)
+            {
+                if (patten_hound[i] != 0)
+                {
+                    parse_total += result.Item2[i][patten_num];
                 }
                 else
                 {
-                    strBuilder.Append($"{result.Item2[i][j]}, ");//”,”とともに追加
+                    parse_total += result.Item2[i][0];
                 }
-            }
-            Debug.Log(strBuilder.ToString());
-        }
-    }
-
-    private void Parse_Mixed((List<string>, List<List<string>>) result)//パースを元にローマ字文の作成
-    {
-        string parse_total = "";
-
-        for (int i = 0; i < result.Item1.Count; i++)
-        {
-            if (patten_hound[i] != 0)
-            {
-                parse_total += result.Item2[i][patten_num];
-            }
-            else
-            {
-                parse_total += result.Item2[i][0];
             }
             alp.text = parse_total;
             alpha_script = parse_total;
         }
-
-    }
-    private void OnGUI()
+        private void OnGUI()
     {
         if (Input.anyKey)
         {
@@ -202,8 +197,6 @@ public class TypingManager : MonoBehaviour
 
             if (inkey != null ^ inkey == "")//Shiftキーなど文字情報が含まれないキーを排他
             {
-                    // if(inkey != null ^ inkey == "") の中
-
                     switch (Input_Judge(inkey))
                     {
                         case 1:
@@ -223,35 +216,43 @@ public class TypingManager : MonoBehaviour
                             miss_typ_count.text = miss.ToString();
                             break;
                     }
-                }
+                    typ_count++;
+                    typing_count.text = typing_count.ToString();
+            }
         }
             Input.ResetInputAxes();
     }
-    private int Input_Judge(string inkey)//入力の合否
-    {
-        List<string> answer = result.judgeAutomaton[parse_index].FindAll(answer => answer[word_num].ToString() == inkey);
-        if (answer.Count != 0)
-        {//柔軟入力に対応していた場合
-            int num = 0;
-            foreach (string typePattern in result.Item2[parse_index])
-            {
-                if (typePattern == answer[0])//符合するもので一番短いもの
-                {
-                    patten_num = num;
-                    patten_hound[parse_index] = patten_num;
-                    Parse_Mixed(result);
-                    break;
-                }
-                num++;
-            }
-
-            return 1;
-        }
-        else
+        private int Input_Judge(string inkey)//入力の合否
         {
-            return 2;
+            if (result.Item2[parse_index][patten_num][word_num].ToString() == inkey)
+            {
+                return 1;
+            }
+            else
+            {
+                List<string> answer = result.Item2[parse_index].FindAll(answer => answer[word_num].ToString() == inkey);
+                if (answer.Count != 0)
+                {//柔軟入力に対応していた場合
+                    int num = 0;
+                    foreach (string typePattern in result.Item2[parse_index])
+                    {
+                        if (typePattern == answer[0])//符合するもので一番短いもの
+                        {
+                            patten_num = num;
+                            patten_hound[parse_index] = patten_num;
+                            Parse_Mixed(result);
+                            break;
+                        }
+                        num++;
+                    }
+                    return 1;
+                }
+                else
+                {
+                    return 2;
+                }
+            }
         }
-    }
 
         private void Question_Change()  //問題変更
         {
@@ -259,19 +260,18 @@ public class TypingManager : MonoBehaviour
             {
                 parse_index = 0;
                 alpha_index = 0;
-                //question_index[0]++;
-                ramdom_list[0]++;
+                Q_index++;
                 if (ramdom_switch == true)
                 {
-                    sentence.text = Q_sentence[ramdom_list[0]];
-                    hiragana.text = Q_hiragana[ramdom_list[0]];
-                    result = ConstructTypeSentence(Q_hiragana[ramdom_list[0]]);
+                    sentence.text = Q_sentence[ramdom_list[Q_index]];
+                    hiragana.text = Q_hiragana[ramdom_list[Q_index]];
+                    result = ConstructTypeSentence(Q_hiragana[ramdom_list[Q_index]]);
                 }
                 else
                 {
-                    sentence.text = Q_sentence[0];
-                    hiragana.text = Q_hiragana[0];
-                    result = ConstructTypeSentence(Q_hiragana[0]);
+                    sentence.text = Q_sentence[Q_index];
+                    hiragana.text = Q_hiragana[Q_index];
+                    result = ConstructTypeSentence(Q_hiragana[Q_index]);
                 }
                 Reset_Patten();
                 Parse_Mixed(result);
@@ -280,14 +280,14 @@ public class TypingManager : MonoBehaviour
 
         private void Reset_Patten()//パースパターンの初期化
         {
-        patten_hound = new List<int>();
-        for (int i = 0; i < result.Item1.Count; i++)
-        {
-            patten_hound.Add(0);
+            patten_hound = new List<int>();
+            for (int i = 0; i < result.Item1.Count; i++)
+            {
+                patten_hound.Add(0);
+            }
         }
-    }
-    private void Random_Question()//問題のランダム化
-    {
+        private void Random_Question()//問題のランダム化
+        {
         System.Random dice = new System.Random();
         for (int i = 0; i < Q_sentence.Count; i++)
         {
