@@ -48,8 +48,6 @@ public class TypingManager : MonoBehaviour
         return (new List<string>(question_dic.Keys), new List<string>(question_dic.Values));
     }
 
-    //private static readonly Dictionary<string, string[]> mappingDict = new();
-
         private static readonly Dictionary<string, string[]> mapping = new();
         private void Read_Json_File(string path)//ƒp[ƒXî•ñ‚Ì“Ç‚İ‚İ
         {
@@ -230,9 +228,9 @@ public class TypingManager : MonoBehaviour
             }
             else
             {
-                List<string> answer = result.Item2[parse_index].FindAll(answer => answer[word_num].ToString() == inkey);
+                List<string> answer = result.Item2[parse_index].FindAll(answer => answer[patten_num].ToString() == inkey);
                 if (answer.Count != 0)
-                {//_“î“ü—Í‚É‘Î‰‚µ‚Ä‚¢‚½ê‡
+                {
                     int num = 0;
                     foreach (string typePattern in result.Item2[parse_index])
                     {
