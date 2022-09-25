@@ -35,6 +35,8 @@ public class TypingManager : MonoBehaviour
         private int alpha_index = 0;
         private List<int> patten_hound;
         private bool ramdom_switch = true;
+        Animator anim;
+
 
 
     private (List<string>, List<string>) Read_Csv(string path)//問題集の読み込み
@@ -143,10 +145,11 @@ public class TypingManager : MonoBehaviour
             hiragana.text = Q_hiragana[ramdom_list[Q_index]];
             result = ConstructTypeSentence(Q_hiragana[ramdom_list[Q_index]]);
         }
-        Reset_Patten();
-        Parse_Look(result);
-        Parse_Mixed(result);
-    }
+            Reset_Patten();
+            Parse_Look(result);
+            Parse_Mixed(result);
+            anim = GetComponent<Animator>();
+        }
 
         private void Parse_Look((List<string>, List<List<string>>) result)//パース確認用
         {
@@ -188,7 +191,7 @@ public class TypingManager : MonoBehaviour
             alpha_script = parse_total;
         }
         private void OnGUI()
-    {
+        {
         if (Input.anyKey)
         {
             string inkey = Input.inputString.ToString();
@@ -207,7 +210,7 @@ public class TypingManager : MonoBehaviour
                                 patten_num = 0;
                                 word_num = 0;
                             }
-                            Question_Change();
+                                Question_Change();
                             break;
                         case 2://タイプミス
                             miss++;
@@ -220,7 +223,7 @@ public class TypingManager : MonoBehaviour
         }
             Input.ResetInputAxes();
     }
-        private int Input_Judge(string inkey)//入力の合否
+        public int Input_Judge(string inkey)//入力の合否
         {
             if (result.Item2[parse_index][patten_num][word_num].ToString() == inkey)
             {
@@ -252,7 +255,7 @@ public class TypingManager : MonoBehaviour
             }
         }
 
-        private void Question_Change()  //問題変更
+        public void Question_Change()  //問題変更
         {
             if (alpha_script.Length == alpha_index)
             {
@@ -264,12 +267,14 @@ public class TypingManager : MonoBehaviour
                     sentence.text = Q_sentence[ramdom_list[Q_index]];
                     hiragana.text = Q_hiragana[ramdom_list[Q_index]];
                     result = ConstructTypeSentence(Q_hiragana[ramdom_list[Q_index]]);
+                    anim.Play("hero_attack");
                 }
                 else
                 {
                     sentence.text = Q_sentence[Q_index];
                     hiragana.text = Q_hiragana[Q_index];
                     result = ConstructTypeSentence(Q_hiragana[Q_index]);
+                    anim.Play("hero_attack");
                 }
                 Reset_Patten();
                 Parse_Mixed(result);
