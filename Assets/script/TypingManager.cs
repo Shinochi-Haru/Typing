@@ -12,11 +12,11 @@ namespace RomanTypingParser
 
 public class TypingManager : MonoBehaviour
 {
-        [SerializeField] private TextMeshPro sentence;
-        [SerializeField] private TextMeshPro hiragana;
-        [SerializeField] private TextMeshPro alp;
-        [SerializeField] private TextMeshPro typing_count;
-        [SerializeField] private TextMeshPro miss_typ_count;
+         private TextMeshPro sentence;
+         private TextMeshPro hiragana;
+         private TextMeshPro alp;
+         private TextMeshPro typing_count;
+         private TextMeshPro miss_typ_count;
 
         private List<string> Q_sentence = new List<string>();
         private List<string> Q_hiragana = new List<string>();
