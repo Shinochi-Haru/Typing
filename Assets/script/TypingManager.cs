@@ -36,10 +36,14 @@ public class TypingManager : MonoBehaviour
         private List<int> patten_hound;
         private bool ramdom_switch = true;
         Animator anim;
+        /// <summary>弾のプレハブ</summary>
+        [SerializeField] GameObject _bulletPrefab = null;
+        /// <summary>弾の発射位置</summary>
+        [SerializeField] Transform _muzzle = null;
 
 
 
-    private (List<string>, List<string>) Read_Csv(string path)//問題集の読み込み
+        private (List<string>, List<string>) Read_Csv(string path)//問題集の読み込み
     {
         Dictionary<string, string> question_dic = new();
         string csv = File.ReadAllText(path);
@@ -313,6 +317,22 @@ public class TypingManager : MonoBehaviour
                 }
             }
         }
+        }
+        void Update()
+        {
+            if (Input.GetButtonDown("Fire1"))
+            {
+                Debug.Log("a");
+                Fire1();
+            }
+        }
+        void Fire1()
+        {
+            if (_bulletPrefab && _muzzle)
+            {
+                GameObject go = Instantiate(_bulletPrefab, _muzzle.position, _bulletPrefab.transform.rotation);
+                go.transform.SetParent(this.transform);
+            }
+        }
     }
-}
 }
