@@ -274,6 +274,7 @@ public class TypingManager : MonoBehaviour
                     hiragana.text = Q_hiragana[ramdom_list[Q_index]];
                     result = ConstructTypeSentence(Q_hiragana[ramdom_list[Q_index]]);
                     anim.Play("hero_attack");
+                    Attack();
                 }
                 else
                 {
@@ -281,6 +282,7 @@ public class TypingManager : MonoBehaviour
                     hiragana.text = Q_hiragana[Q_index];
                     result = ConstructTypeSentence(Q_hiragana[Q_index]);
                     anim.Play("hero_attack");
+                    Attack();
                 }
                 Reset_Patten();
                 Parse_Mixed(result);
@@ -322,32 +324,32 @@ public class TypingManager : MonoBehaviour
       }
 
 
-        void Update()
-        {
-            Attack();
-        }
+        //void Update()
+        //{
+        //    if (ramdom_switch == true)
+        //    {
+        //        Attack();
+        //    }
+        //}
 
 
 
         void Attack()
         {
-            attackTime += Time.deltaTime; //attackTimeに毎フレームの時間を加算していく
+            //attackTime += Time.deltaTime; //attackTimeに毎フレームの時間を加算していく
 
-            if (attackTime > currentAttackTime)
-            {
-                canAttack = true; //指定時間を超えたら攻撃可能にする
-            }
+            //if (attackTime > currentAttackTime)
+            //{
+            //    canAttack = true; //指定時間を超えたら攻撃可能にする
+            //}
 
-            if (Input.GetButtonDown("Fire1")) //Kキーを押したら
-            {
-                if (canAttack)
-                {
-                    //第一引数に生成するオブジェクト、第二引数にVector3型の座標、第三引数に回転の情報
-                    Instantiate(lazer, attackPoint.position, Quaternion.identity);
-                    canAttack = false; //攻撃フラグをfalseにする
-                    attackTime = 0f; //attackTimeを0に戻す
-                }
-            }
+            //if (ramdom_switch == true) //Kキーを押したら
+            //{
+
+            //    //第一引数に生成するオブジェクト、第二引数にVector3型の座標、第三引数に回転の情報
+                Instantiate(lazer, attackPoint.position, Quaternion.identity);
+                
+            //}
         }
     }
 }
