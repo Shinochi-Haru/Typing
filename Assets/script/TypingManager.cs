@@ -35,16 +35,16 @@ public class TypingManager : MonoBehaviour
         private int alpha_index = 0;
         private List<int> patten_hound;
         private bool ramdom_switch = true;
-        Animator anim;
-        /// <summary>弾のプレハブ</summary>
-        [SerializeField] GameObject _bulletPrefab = null;
-        /// <summary>弾の発射位置</summary>
-        [SerializeField] Transform _muzzle = null;
-
+        Animator anim,anim2;
+        [SerializeField] private GameObject lazer; //レーザープレハブを格納
+        [SerializeField] private Transform attackPoint;//アタックポイントを格納
+        [SerializeField] private float attackTime = 0.2f; //攻撃の間隔
+        private float currentAttackTime; //攻撃の間隔を管理
+        private bool canAttack; //攻撃可能状態かを指定するフラグ
 
 
         private (List<string>, List<string>) Read_Csv(string path)//問題集の読み込み
-    {
+        { 
         Dictionary<string, string> question_dic = new();
         string csv = File.ReadAllText(path);
         foreach (ICsvLine line in CsvReader.ReadFromText(csv))
@@ -52,7 +52,7 @@ public class TypingManager : MonoBehaviour
             question_dic.Add(line[0], line[1]);
         }
         return (new List<string>(question_dic.Keys), new List<string>(question_dic.Values));
-    }
+        }
 
         private static readonly Dictionary<string, string[]> mapping = new();
         private void Read_Json_File(string path)//パース情報の読み込み
@@ -153,6 +153,8 @@ public class TypingManager : MonoBehaviour
             Parse_Look(result);
             Parse_Mixed(result);
             anim = GetComponent<Animator>();
+            anim2 = GetComponent<Animator>();
+            currentAttackTime = attackTime;
         }
 
         private void Parse_Look((List<string>, List<List<string>>) result)//パース確認用
@@ -293,8 +295,8 @@ public class TypingManager : MonoBehaviour
                 patten_hound.Add(0);
             }
         }
-        private void Random_Question()//問題のランダム化
-        {
+      private void Random_Question()//問題のランダム化
+      {
         System.Random dice = new System.Random();
         for (int i = 0; i < Q_sentence.Count; i++)
         {
@@ -317,21 +319,34 @@ public class TypingManager : MonoBehaviour
                 }
             }
         }
-        }
+      }
+
+
         void Update()
         {
-            if (Input.GetButtonDown("Fire1"))
-            {
-                Debug.Log("a");
-                Fire1();
-            }
+            Attack();
         }
-        void Fire1()
+
+
+
+        void Attack()
         {
-            if (_bulletPrefab && _muzzle)
+            attackTime += Time.deltaTime; //attackTimeに毎フレームの時間を加算していく
+
+            if (attackTime > currentAttackTime)
             {
-                GameObject go = Instantiate(_bulletPrefab, _muzzle.position, _bulletPrefab.transform.rotation);
-                go.transform.SetParent(this.transform);
+                canAttack = true; //指定時間を超えたら攻撃可能にする
+            }
+
+            if (Input.GetButtonDown("Fire1")) //Kキーを押したら
+            {
+                if (canAttack)
+                {
+                    //第一引数に生成するオブジェクト、第二引数にVector3型の座標、第三引数に回転の情報
+                    Instantiate(lazer, attackPoint.position, Quaternion.identity);
+                    canAttack = false; //攻撃フラグをfalseにする
+                    attackTime = 0f; //attackTimeを0に戻す
+                }
             }
         }
     }
