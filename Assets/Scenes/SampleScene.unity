@@ -324,6 +324,9 @@ MonoBehaviour:
   - {fileID: 851418802}
   - {fileID: 869973364}
   - {fileID: 1242309709}
+  loadScene: GameOver
+  fadeColor: {r: 0, g: 0, b: 0, a: 1}
+  fadeSpeedMultiplier: 0.5
 --- !u!82 &89834843
 AudioSource:
   m_ObjectHideFlags: 0
@@ -1246,9 +1249,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   effectPrefab: {fileID: 0}
   effectPrefab2: {fileID: 5566091812342887333, guid: 8df8c6c1dd6c1244e92467ac52c333a7, type: 3}
-  objectHP: 5
+  objectHP: 10
   lazer: {fileID: 2618338251206495083, guid: 38351775a97cd184ba28e6c2f8f2fe34, type: 3}
   attackPoint: {fileID: 521445839}
+  loadScene: Clear
+  fadeColor: {r: 0, g: 0, b: 0, a: 1}
+  fadeSpeedMultiplier: 0.5
 --- !u!4 &1059046941 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8125339221556717982, guid: 74242312e527e1e4f9a967faaf199181, type: 3}
@@ -2537,11 +2543,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1341853742019151498, guid: 2c17f8df15059e84bb31cc46f462e6e9, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -6.31
+      value: -5.79
       objectReference: {fileID: 0}
     - target: {fileID: 1341853742019151498, guid: 2c17f8df15059e84bb31cc46f462e6e9, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -3.53
+      value: -3.4
       objectReference: {fileID: 0}
     - target: {fileID: 1341853742019151498, guid: 2c17f8df15059e84bb31cc46f462e6e9, type: 3}
       propertyPath: m_LocalPosition.z
