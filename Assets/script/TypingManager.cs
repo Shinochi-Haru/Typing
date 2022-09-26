@@ -38,10 +38,7 @@ public class TypingManager : MonoBehaviour
         Animator anim,anim2;
         [SerializeField] private GameObject lazer; //レーザープレハブを格納
         [SerializeField] private Transform attackPoint;//アタックポイントを格納
-        [SerializeField] private float attackTime = 0.2f; //攻撃の間隔
-        private float currentAttackTime; //攻撃の間隔を管理
-        private bool canAttack; //攻撃可能状態かを指定するフラグ
-
+       
 
         private (List<string>, List<string>) Read_Csv(string path)//問題集の読み込み
         { 
@@ -154,7 +151,6 @@ public class TypingManager : MonoBehaviour
             Parse_Mixed(result);
             anim = GetComponent<Animator>();
             anim2 = GetComponent<Animator>();
-            currentAttackTime = attackTime;
         }
 
         private void Parse_Look((List<string>, List<List<string>>) result)//パース確認用
@@ -336,20 +332,8 @@ public class TypingManager : MonoBehaviour
 
         void Attack()
         {
-            //attackTime += Time.deltaTime; //attackTimeに毎フレームの時間を加算していく
-
-            //if (attackTime > currentAttackTime)
-            //{
-            //    canAttack = true; //指定時間を超えたら攻撃可能にする
-            //}
-
-            //if (ramdom_switch == true) //Kキーを押したら
-            //{
-
-            //    //第一引数に生成するオブジェクト、第二引数にVector3型の座標、第三引数に回転の情報
                 Instantiate(lazer, attackPoint.position, Quaternion.identity);
                 
-            //}
         }
     }
 }
