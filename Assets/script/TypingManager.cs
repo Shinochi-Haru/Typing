@@ -38,6 +38,7 @@ public class TypingManager : MonoBehaviour
         Animator anim,anim2;
         [SerializeField] private GameObject lazer; //レーザープレハブを格納
         [SerializeField] private Transform attackPoint;//アタックポイントを格納
+        AudioSource audioSource;
        
 
         private (List<string>, List<string>) Read_Csv(string path)//問題集の読み込み
@@ -151,6 +152,7 @@ public class TypingManager : MonoBehaviour
             Parse_Mixed(result);
             anim = GetComponent<Animator>();
             anim2 = GetComponent<Animator>();
+            audioSource = GetComponent<AudioSource>();
         }
 
         private void Parse_Look((List<string>, List<List<string>>) result)//パース確認用
@@ -271,6 +273,7 @@ public class TypingManager : MonoBehaviour
                     result = ConstructTypeSentence(Q_hiragana[ramdom_list[Q_index]]);
                     anim.Play("hero_attack");
                     Attack();
+                    audioSource.Play();
                 }
                 else
                 {
@@ -279,6 +282,7 @@ public class TypingManager : MonoBehaviour
                     result = ConstructTypeSentence(Q_hiragana[Q_index]);
                     anim.Play("hero_attack");
                     Attack();
+                    audioSource.Play();
                 }
                 Reset_Patten();
                 Parse_Mixed(result);
